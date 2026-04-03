@@ -1,0 +1,21 @@
+{
+  "name": "nand2tetris-vm",
+  "version": "1.0.0",
+  "description": "Vm translator to hack assembly for nand2tetris course",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Silas310/nand2tetris-vm.git"
+  },
+  "keywords": [],
+  "author": "Silas",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Silas310/nand2tetris-vm/issues"
+  },
+  "homepage": "https://github.com/Silas310/nand2tetris-vm#readme"
+}
