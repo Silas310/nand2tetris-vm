@@ -1,17 +1,29 @@
 const fs = require('fs');
 
 class Parser {
-  constructor(filePath) {
+
+  constructor(commands) { // only for internal use, use fromFile or fromString to create an instance
+    this.commands = commands;
+    this.currentIndex = 0;
+    this.currentCommand = null;
+  }
+
+  static fromFile (filePath) { // Read the file content, clean it up and create a Parser instance.
     const rawFileContent = fs.readFileSync(filePath, 'utf-8');
-    this.commands = rawFileContent
+    const cleaned = rawFileContent
       .split(/\r?\n/) // break the file into lines
       .map(line => line.split('//')[0]) // remove comments and [0] to get the command part
       .map(line => line.trim()) // remove leading and trailing whitespace
       .filter(line => line.length > 0); // filter out empty lines
-
-    this.currentIndex = 0;
-    this.currentCommand = null;
+    
+    return new Parser(cleaned);
   }
+
+  static fromString(text) { // Clean the input string and create a Parser instance.
+    const cleaned = text.split(';').map(s => s.trim());
+    return new Parser(cleaned);
+  }
+
 
   hasMoreCommands() {
     return this.currentIndex < this.commands.length;
@@ -53,3 +65,5 @@ class Parser {
     return parseInt(parts[2])
   }
 }
+
+module.exports = Parser;
