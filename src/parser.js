@@ -5,7 +5,7 @@ class Parser {
   constructor(commands) { // only for internal use, use fromFile or fromString to create an instance
     this.commands = commands;
     this.currentIndex = 0;
-    this.currentCommand = null;
+    this.currentCommand = null; // dont forget to advance() to set the first command before accessing it
   }
 
   static fromFile (filePath) { // Read the file content, clean it up and create a Parser instance.
@@ -43,10 +43,11 @@ class Parser {
       'and', 'or', 'not'
     ]
 
+  
     if (this.currentCommand.startsWith('push')) return 'C_PUSH';
     if (this.currentCommand.startsWith('pop')) return 'C_POP';
 
-    if (
+     if (
       C_ARITHMETIC_COMMANDS.includes(this.currentCommand)
     ) return 'C_ARITHMETIC';
   }
@@ -58,11 +59,12 @@ class Parser {
     } else {
       return args[1]; // For other commands, the first argument is the second word.
     }
+    return null; // Return null if there are no arguments (e.g., for C_RETURN).
   }
 
   arg2() {
     const parts = this.currentCommand.split(' ');
-    return parseInt(parts[2])
+    return parseInt(parts[2]);
   }
 }
 
