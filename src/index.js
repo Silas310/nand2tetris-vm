@@ -11,11 +11,35 @@ const outputFileName = `${fileName}.asm`;
 
 
 // output path logic 
-const outputPath = path.join(__dirname, 'out', outputFileName);
+const outputPath = path.join(__dirname, '..', 'out', outputFileName);
 
 // instantiation
 const parser = Parser.fromFile(filePath);
 const assemblyWriter = new CodeWriter(outputPath);
+
+
+while (parser.hasMoreCommands()) {
+  parser.advance();
+  let commandType = parser.commandType();
+  
+
+  switch (commandType) {
+    case 'C_PUSH':
+      assemblyWriter.writePushPop(
+        commandType,
+        parser.arg1(),
+        parser.arg2()
+      );
+      break;
+
+    case 'C_POP':
+      assemblyWriter.writeArithmetic(parser.arg1());
+      break;
+  
+    default:
+      break;
+  }
+}
 
 
 // const outputFileName = filePath // split, get last part and replace .vm with .asm
