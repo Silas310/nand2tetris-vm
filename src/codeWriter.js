@@ -8,8 +8,25 @@ class CodeWriter {
   setFileName(fileName) {}
 
   writeArithmetic(command) { // command type -> assembly equivalent
+    let assemblyCommand = command;
+    this.outputFile.write(`// ${assemblyCommand}\n`);
     
-  } 
+    switch (command) {
+      case 'add':
+        const decPointer = `@SP\nM=M-1`;
+        const poppedValue = `A=M\nD=M`;
+        const sumAndSave = `@SP\nA=M\nM=D+M`;
+        const incPointer = `@SP\nM=M+1`;
+        this.outputFile.write(
+          decPointer + '\n' + poppedValue + '\n' + decPointer + '\n' 
+          + sumAndSave + '\n' + incPointer + '\n'
+        );
+        break;
+    
+      default:
+        break;
+    }
+  }
     
 
   writePushPop(command, segment, index) { // command type -> assembly equivalent
@@ -22,25 +39,25 @@ class CodeWriter {
     switch (command) {
 
       case 'C_PUSH':
+        const pushStack = `@${index}\nD=A\n@SP\nA=M\nM=D`;
+        const incPointer = `@SP\nM=M+1`;
         if (segment === 'constant') {
-          let pushStack = `@${index}\nD=A\n@SP\nA=M\nM=D`;
-          let incPointer = `@SP\nM=M+1`;
           // this.outputFile.write(
           //   `@${index}\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n`
           // );
           this.outputFile.write(
-            pushStack + '\n' + incPointer + '\n');
+            pushStack + '\n' + incPointer + '\n'
+          );
         }
         break;
 
       case 'C_POP':
-        
         break;
     
       default:
         break;
     }
-  } 
+  }
 
   close() {
     this.outputFile.end();

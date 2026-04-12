@@ -21,7 +21,6 @@ const assemblyWriter = new CodeWriter(outputPath);
 while (parser.hasMoreCommands()) {
   parser.advance();
   let commandType = parser.commandType();
-  
 
   switch (commandType) {
     case 'C_PUSH':
@@ -33,13 +32,20 @@ while (parser.hasMoreCommands()) {
       break;
 
     case 'C_POP':
+      break;
+
+    case 'C_ARITHMETIC':
       assemblyWriter.writeArithmetic(parser.arg1());
       break;
   
     default:
       break;
+    }
   }
-}
+
+assemblyWriter.close()
+console.log(`${fileName} compiled at: ${filePath}`);
+
 
 
 // const outputFileName = filePath // split, get last part and replace .vm with .asm
