@@ -26,15 +26,30 @@ class CodeWriter {
     return assembly;
   }
 
+  _writeUnaryArithmetic(operation) { // dry for neg, not
+    let assembly = "";
+    assembly += this._decrementSP();
+    assembly = '\n';
+    assembly += `A=M\nD=M\n`;
+    assembly += `${operation}\n`;
+    assembly += this._incrementSP();
+    return assembly;
+  }
+
   setFileName(fileName) {}
 
   writeArithmetic(command) { // command type -> assembly equivalent
     this.outputFile.write(`// ${command}\n`);
   
+    // binary operations
     const subAndSave = `M=M-D`;
     const sumAndSave = `M=D+M`;
     const andAndSave = `M=D&M`;
     const orAndSave = `M=D|M`;
+
+    // unary operations
+    const negAndSave = `M=-M`;
+    const notAndSave = `M=!M`;
     
     switch (command) {
       case 'add': // binary operations -> pop 2 values, perform operation and push result
@@ -48,6 +63,16 @@ class CodeWriter {
           'or': orAndSave
         };
         this.outputFile.write(this._writeBinaryArithmetic(operations[command]));
+        break;
+      }
+
+      case 'neg': // unary operations -> pop 1 value, perform operation and push result
+      case 'not': {
+        const operations = {
+          'neg': negAndSave,
+          'not': notAndSave
+        };
+        this.outputFile.write(this._writeUnaryArithmetic(operations[command]));
         break;
       }
 
