@@ -5,6 +5,14 @@ class CodeWriter {
     this.outputFile = fs.createWriteStream(outputPath, { flags: 'w' });
   }
 
+  _incrementSP() {
+    this.outputFile.write(`@SP\nM=M+1\n`);
+  }
+
+  _decrementSP() {
+    this.outputFile.write(`@SP\nM=M-1\n`);
+  }
+
   setFileName(fileName) {}
 
   writeArithmetic(command) { // command type -> assembly equivalent
@@ -13,10 +21,10 @@ class CodeWriter {
     
     switch (command) {
       case 'add':
-        const decPointer = `@SP\nM=M-1`;
+        const decPointer = this._decrementSP();
         const poppedValue = `A=M\nD=M`;
         const sumAndSave = `@SP\nA=M\nM=D+M`;
-        const incPointer = `@SP\nM=M+1`;
+        const incPointer = this._incrementSP();
         this.outputFile.write(
           decPointer + '\n' + poppedValue + '\n' + decPointer + '\n' 
           + sumAndSave + '\n' + incPointer + '\n'
@@ -40,7 +48,7 @@ class CodeWriter {
 
       case 'C_PUSH':
         const pushStack = `@${index}\nD=A\n@SP\nA=M\nM=D`;
-        const incPointer = `@SP\nM=M+1`;
+        const incPointer = this._incrementSP();
         if (segment === 'constant') {
           // this.outputFile.write(
           //   `@${index}\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n`
