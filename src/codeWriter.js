@@ -3,6 +3,7 @@ const fs = require('fs');
 class CodeWriter {
   constructor(outputPath) {
     this.outputFile = fs.createWriteStream(outputPath, { flags: 'w' });
+    this.labelCounter = 0;
   }
 
   _incrementSP() {
@@ -22,7 +23,7 @@ class CodeWriter {
     assembly += '\n';
     assembly += `A=M\n`;
     assembly += `${operation}\n`;
-    assembly += this._incrementSP();
+    assembly += this._incrementSP() + '\n';
     return assembly;
   }
 
@@ -32,9 +33,40 @@ class CodeWriter {
     assembly += '\n';
     assembly += `A=M\n`;
     assembly += `${operation}\n`;
-    assembly += this._incrementSP();
+    assembly += this._incrementSP() + '\n';
     return assembly;
   }
+
+  _writeComparisonArithmetic(operation) { // dry for eq, gt, lt
+    let assembly = "";
+
+    const labelTrue = `TRUE_IF_${this.labelCounter}`;
+    const labelEnd = `END_IF${this.labelCounter}`;
+
+    this.labelCounter += 1;
+
+    assembly += this._decrementSP() + '\n'; // pick y
+    assembly += 'A=M\nD=M\n'; // D = y | y = top of stack
+    assembly += this._decrementSP() + '\n'; // pick x
+    assembly += 'A=M\n'; // A = address of x
+    assembly += 'D=M-D\n'; // D = x - y 
+
+    assembly += `@${labelTrue}\n`;
+    assembly += `${operation}\n`; // jump to TRUE_IF_X if condition is true
+
+    assembly += `@SP\nA=M\nM=0\n`; // condition false = push 0
+    assembly += `@${labelEnd}\n`;
+    assembly += `0;JMP\n`; // jump to end
+
+    assembly += `(${labelTrue})\n`; // if condition is true, push -1 (true) to stack
+    assembly += `@SP\nA=M\nM=-1\n`; // condition true = push -1
+    assembly += `(${labelEnd})\n`; 
+
+    assembly += this._incrementSP() + '\n'; // after write result
+
+    return assembly;
+  }
+
 
   setFileName(fileName) {}
 
@@ -50,6 +82,12 @@ class CodeWriter {
     // unary operations
     const negAndSave = `M=-M`;
     const notAndSave = `M=!M`;
+
+    // comparison operations
+    const isEqual = 'D;JEQ';
+    const isGreater = 'D;JGT';
+    const isLess = 'D;JLT';
+
     
     switch (command) {
       case 'add': // binary operations -> pop 2 values, perform operation and push result
@@ -76,6 +114,18 @@ class CodeWriter {
         break;
       }
 
+      case 'eq': // comparison operations -> pop 2 values, perform operation and push true (-1) or false (0)
+      case 'gt':
+      case 'lt': {
+        const operation = {
+          'eq': isEqual,
+          'gt': isGreater,
+          'lt': isLess
+        }
+        this.outputFile.write(this._writeComparisonArithmetic(operation[command]));
+      }
+      break;
+
       default:
         break;
     }
@@ -83,11 +133,11 @@ class CodeWriter {
     
 
   writePushPop(command, segment, index) { // command type -> assembly equivalent
-    let assemblyCommand = `${command} ${segment} ${index}\n`;
+    let assemblyCommand = `${command} ${segment} ${index}`;
     // console.log('command type: ', typeof command, ', segment type: ', 
     //   typeof segment, ', index type: ', typeof index);
     // string string number
-    this.outputFile.write(`// ${command} ${segment} ${index}\n`)    
+    this.outputFile.write(`// ${assemblyCommand}\n`);    
 
     switch (command) {
 
