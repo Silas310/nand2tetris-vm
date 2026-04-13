@@ -31,8 +31,10 @@ class CodeWriter {
   writeArithmetic(command) { // command type -> assembly equivalent
     this.outputFile.write(`// ${command}\n`);
   
-    const subAndSave = `@SP\nA=M\nM=M-D`;
-    const sumAndSave = `@SP\nA=M\nM=D+M`;
+    const subAndSave = `M=M-D`;
+    const sumAndSave = `M=D+M`;
+    const andAndSave = `M=D&M`;
+    const orAndSave = `M=D|M`;
     
     switch (command) {
       case 'add':
@@ -45,6 +47,14 @@ class CodeWriter {
         this.outputFile.write(
           this._writeBinaryArithmetic(subAndSave)
         );
+        break;
+
+      case 'and':
+        this.outputFile.write(this._writeBinaryArithmetic(andAndSave));
+        break;
+
+      case 'or':
+        this.outputFile.write(this._writeBinaryArithmetic(orAndSave));
         break;
 
       default:
