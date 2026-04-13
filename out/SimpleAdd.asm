@@ -1,27 +1,16 @@
-// C_PUSH constant 7
-@7
+// C_PUSH constant 4
+@4
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-// C_PUSH constant 8
-@8
-D=A
-@SP
-A=M
-M=D
-@SP
-M=M+1
-// add
+// neg
 @SP
 M=M-1
 A=M
 D=M
-@SP
-M=M-1
-A=M
-M=D+M
+M=-M
 @SP
 M=M+1

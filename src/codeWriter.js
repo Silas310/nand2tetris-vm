@@ -29,8 +29,8 @@ class CodeWriter {
   _writeUnaryArithmetic(operation) { // dry for neg, not
     let assembly = "";
     assembly += this._decrementSP();
-    assembly = '\n';
-    assembly += `A=M\nD=M\n`;
+    assembly += '\n';
+    assembly += `A=M\n`;
     assembly += `${operation}\n`;
     assembly += this._incrementSP();
     return assembly;
