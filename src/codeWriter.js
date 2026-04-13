@@ -37,25 +37,19 @@ class CodeWriter {
     const orAndSave = `M=D|M`;
     
     switch (command) {
-      case 'add':
-        this.outputFile.write(
-          this._writeBinaryArithmetic(sumAndSave)
-        );
-        break;
-  
+      case 'add': // binary operations -> pop 2 values, perform operation and push result
       case 'sub':
-        this.outputFile.write(
-          this._writeBinaryArithmetic(subAndSave)
-        );
-        break;
-
       case 'and':
-        this.outputFile.write(this._writeBinaryArithmetic(andAndSave));
+      case 'or': {
+        const operations = {
+          'add': sumAndSave,
+          'sub': subAndSave,
+          'and': andAndSave,
+          'or': orAndSave
+        };
+        this.outputFile.write(this._writeBinaryArithmetic(operations[command]));
         break;
-
-      case 'or':
-        this.outputFile.write(this._writeBinaryArithmetic(orAndSave));
-        break;
+      }
 
       default:
         break;
