@@ -6,31 +6,47 @@ class CodeWriter {
   }
 
   _incrementSP() {
-    this.outputFile.write(`@SP\nM=M+1\n`);
+    return `@SP\nM=M+1`;
   }
 
   _decrementSP() {
-    this.outputFile.write(`@SP\nM=M-1\n`);
+    return `@SP\nM=M-1`;
+  }
+
+  _writeBinaryArithmetic(operation) { // dry for add, sub, and, or
+    let assembly = "";
+    assembly += this._decrementSP();
+    assembly += '\n';
+    assembly += `A=M\nD=M\n`;
+    assembly += this._decrementSP();
+    assembly += '\n';
+    assembly += `A=M\n`;
+    assembly += `${operation}\n`;
+    assembly += this._incrementSP();
+    return assembly;
   }
 
   setFileName(fileName) {}
 
   writeArithmetic(command) { // command type -> assembly equivalent
-    let assemblyCommand = command;
-    this.outputFile.write(`// ${assemblyCommand}\n`);
+    this.outputFile.write(`// ${command}\n`);
+  
+    const subAndSave = `@SP\nA=M\nM=M-D`;
+    const sumAndSave = `@SP\nA=M\nM=D+M`;
     
     switch (command) {
       case 'add':
-        const decPointer = this._decrementSP();
-        const poppedValue = `A=M\nD=M`;
-        const sumAndSave = `@SP\nA=M\nM=D+M`;
-        const incPointer = this._incrementSP();
         this.outputFile.write(
-          decPointer + '\n' + poppedValue + '\n' + decPointer + '\n' 
-          + sumAndSave + '\n' + incPointer + '\n'
+          this._writeBinaryArithmetic(sumAndSave)
         );
         break;
-    
+  
+      case 'sub':
+        this.outputFile.write(
+          this._writeBinaryArithmetic(subAndSave)
+        );
+        break;
+
       default:
         break;
     }
