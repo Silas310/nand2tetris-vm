@@ -6,6 +6,25 @@ class CodeWriter {
     this.labelCounter = 0;
   }
 
+    binaryMap = {
+      'add': `M=D+M`,
+      'sub': `M=M-D`,
+      'and': `M=D&M`,
+      'or': `M=D|M`
+    };
+
+    unaryMap = {
+      'neg': `M=-M`,
+      'not': `M=!M`
+    };
+
+    comparisonMap = {
+      'eq': 'D;JEQ',
+      'gt': 'D;JGT',
+      'lt': 'D;JLT'
+    };
+  
+
   _incrementSP() {
     return `@SP\nM=M+1`;
   }
@@ -72,21 +91,6 @@ class CodeWriter {
 
   writeArithmetic(command) { // command type -> assembly equivalent
     this.outputFile.write(`// ${command}\n`);
-  
-    // binary operations
-    const subAndSave = `M=M-D`;
-    const sumAndSave = `M=D+M`;
-    const andAndSave = `M=D&M`;
-    const orAndSave = `M=D|M`;
-
-    // unary operations
-    const negAndSave = `M=-M`;
-    const notAndSave = `M=!M`;
-
-    // comparison operations
-    const isEqual = 'D;JEQ';
-    const isGreater = 'D;JGT';
-    const isLess = 'D;JLT';
 
     
     switch (command) {
@@ -94,35 +98,20 @@ class CodeWriter {
       case 'sub':
       case 'and':
       case 'or': {
-        const operations = {
-          'add': sumAndSave,
-          'sub': subAndSave,
-          'and': andAndSave,
-          'or': orAndSave
-        };
-        this.outputFile.write(this._writeBinaryArithmetic(operations[command]));
+        this.outputFile.write(this._writeBinaryArithmetic(this.binaryMap[command]));
         break;
       }
 
       case 'neg': // unary operations -> pop 1 value, perform operation and push result
       case 'not': {
-        const operations = {
-          'neg': negAndSave,
-          'not': notAndSave
-        };
-        this.outputFile.write(this._writeUnaryArithmetic(operations[command]));
+        this.outputFile.write(this._writeUnaryArithmetic(this.unaryMap[command]));
         break;
       }
 
       case 'eq': // comparison operations -> pop 2 values, perform operation and push true (-1) or false (0)
       case 'gt':
       case 'lt': {
-        const operation = {
-          'eq': isEqual,
-          'gt': isGreater,
-          'lt': isLess
-        }
-        this.outputFile.write(this._writeComparisonArithmetic(operation[command]));
+        this.outputFile.write(this._writeComparisonArithmetic(this.comparisonMap[command]));
       }
       break;
 
