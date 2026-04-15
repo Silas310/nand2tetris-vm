@@ -23,6 +23,13 @@ class CodeWriter {
       'gt': 'D;JGT',
       'lt': 'D;JLT'
     };
+
+    segmentsMap = {
+      'local': 'LCL',
+      'argument': 'ARG',
+      'this': 'THIS',
+      'that': 'THAT',
+    };
   
 
   _incrementSP() {
@@ -123,27 +130,35 @@ class CodeWriter {
 
   writePushPop(command, segment, index) { // command type -> assembly equivalent
     let assemblyCommand = `${command} ${segment} ${index}`;
-    // console.log('command type: ', typeof command, ', segment type: ', 
-    //   typeof segment, ', index type: ', typeof index);
-    // string string number
-    this.outputFile.write(`// ${assemblyCommand}\n`);    
+    this.outputFile.write(`// ${assemblyCommand}\n`);
 
     switch (command) {
 
       case 'C_PUSH':
-        const pushStack = `@${index}\nD=A\n@SP\nA=M\nM=D`;
+        const pushStack = `@${segment}\nA=M\nM=D`;
         const incPointer = this._incrementSP();
-        if (segment === 'constant') {
-          // this.outputFile.write(
-          //   `@${index}\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n`
-          // );
-          this.outputFile.write(
-            pushStack + '\n' + incPointer + '\n'
-          );
+
+        switch (segment) {
+          case 'constant':
+            this.outputFile.write('@${index}\nD=A\n' + pushStack + "\n" + incPointer + "\n");
+            break;
+
+          case 'local':
+          case 'argument':
+          case 'this':
+          case 'that':
+            const segmentPointer = this.segmentsMap[segment];
+            const ramAddress = `@${segmentPointer}\nD=M\n@${index}\nD=D+A\nA=D\nD=M\n`;
+            this.outputFile.write(ramAddress + "\n" + pushStack + "\n" + incPointer + "\n");
+            break;
+
+          
+          default:
+          break;
         }
-        break;
 
       case 'C_POP':
+
         break;
     
       default:
