@@ -29,6 +29,8 @@ class CodeWriter {
       'argument': 'ARG',
       'this': 'THIS',
       'that': 'THAT',
+      'pointer': '3',
+      'temp': '5'
     };
   
 
@@ -152,6 +154,12 @@ class CodeWriter {
             this.outputFile.write(ramAddress + "\n" + pushStack + "\n" + incPointer + "\n");
             break;
 
+          case 'temp':
+          case 'pointer':
+            const baseAddress = parseInt(this.segmentsMap[segment]);
+            const target = baseAddress + parseInt(index);
+            this.outputFile.write(`@${target}\nD=M\n` + pushStack + "\n" + incPointer + "\n");
+            break;
           
           default:
           break;
