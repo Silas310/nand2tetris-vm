@@ -165,16 +165,17 @@ class CodeWriter {
           
           default:
             break;
-          }
+        }
+        this.outputFile.write(assembly);
+        break;
           
       case 'C_POP':
 
         break;
     
       default:
-        break;
 
-      this.outputFile.write(assembly);
+        break;
     }
   }
 
