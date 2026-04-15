@@ -137,12 +137,14 @@ class CodeWriter {
     switch (command) {
 
       case 'C_PUSH':
-        const pushStack = `@${segment}\nA=M\nM=D`;
+        const pushStack = `@SP\nA=M\nM=D\n`;
         const incPointer = this._incrementSP();
+        let assembly = '';
 
         switch (segment) {
           case 'constant':
-            this.outputFile.write('@${index}\nD=A\n' + pushStack + "\n" + incPointer + "\n");
+            const pushConstant = `@${index}\nD=A\n`;
+            assembly = `${pushConstant}${pushStack}${incPointer}\n`;
             break;
 
           case 'local':
@@ -151,26 +153,28 @@ class CodeWriter {
           case 'that':
             const segmentPointer = this.segmentsMap[segment];
             const ramAddress = `@${segmentPointer}\nD=M\n@${index}\nD=D+A\nA=D\nD=M\n`;
-            this.outputFile.write(ramAddress + "\n" + pushStack + "\n" + incPointer + "\n");
+            assembly = `${ramAddress}${pushStack}${incPointer}\n`;
             break;
 
           case 'temp':
           case 'pointer':
             const baseAddress = parseInt(this.segmentsMap[segment]);
             const target = baseAddress + parseInt(index);
-            this.outputFile.write(`@${target}\nD=M\n` + pushStack + "\n" + incPointer + "\n");
+            assembly = `@${target}\nD=M\n${pushStack}${incPointer}\n`;
             break;
           
           default:
-          break;
-        }
-
+            break;
+          }
+          
       case 'C_POP':
 
         break;
     
       default:
         break;
+
+      this.outputFile.write(assembly);
     }
   }
 
