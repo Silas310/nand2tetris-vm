@@ -32,6 +32,11 @@ while (parser.hasMoreCommands()) {
       break;
 
     case 'C_POP':
+      assemblyWriter.writePushPop(
+        commandType,
+        parser.arg1(),
+        parser.arg2()
+      );
       break;
 
     case 'C_ARITHMETIC':

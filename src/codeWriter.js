@@ -152,8 +152,8 @@ class CodeWriter {
           case 'this':
           case 'that':
             const segmentPointer = this.segmentsMap[segment];
-            const ramAddress = `@${segmentPointer}\nD=M\n@${index}\nD=D+A\nA=D\nD=M\n`;
-            assembly = `${ramAddress}${pushStack}${incPointer}\n`;
+            const loadValue = `@${segmentPointer}\nD=M\n@${index}\nD=D+A\nA=D\nD=M\n`;
+            assembly = `${loadValue}${pushStack}${incPointer}\n`;
             break;
 
           case 'temp':
@@ -175,12 +175,39 @@ class CodeWriter {
         break;
           
       case 'C_POP':
+        let assemblyPop = '';
+        const popToD = `@SP\nM=M-1\nA=M\nD=M\n`; // pop value to D
 
+        switch (segment) {
+          case 'local':
+          case 'argument':
+          case 'this':
+          case 'that':
+            const segmentPointer = this.segmentsMap[segment];
+            const computeAddress = `@${segmentPointer}\nD=M\n@${index}\nD=D+A\n@R13\nM=D\n`; // compute target address and store in R13
+            assemblyPop = `${computeAddress}${popToD}\n@R13\nA=M\nM=D\n`; // pop value to target address
+            break;
+
+          case 'temp': // 5
+          case 'pointer': // 3. This and That
+            const baseAddress = parseInt(this.segmentsMap[segment]);
+            const target = baseAddress + parseInt(index);
+            assemblyPop = `${popToD}@${target}\nM=D\n`; // pop value to target address
+            break;
+
+          case 'static':
+            assemblyPop = `${popToD}@${this.fileName}.${index}\nM=D\n`; // pop value to static variable       
+            break;
+        
+          default:
+            break;
+        }
+        this.outputFile.write(assemblyPop);
         break;
     
       default:
 
-        break;
+      break;
     }
   }
 
