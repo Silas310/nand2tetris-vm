@@ -6,34 +6,33 @@ class CodeWriter {
     this.labelCounter = 0;
   }
 
-    binaryMap = {
+  binaryMap = {
       'add': `M=D+M`,
       'sub': `M=M-D`,
       'and': `M=D&M`,
       'or': `M=D|M`
-    };
+  };
 
-    unaryMap = {
+  unaryMap = {
       'neg': `M=-M`,
       'not': `M=!M`
-    };
+  };
 
-    comparisonMap = {
+  comparisonMap = {
       'eq': 'D;JEQ',
       'gt': 'D;JGT',
       'lt': 'D;JLT'
-    };
+  };
 
-    segmentsMap = {
+  segmentsMap = {
       'local': 'LCL',
       'argument': 'ARG',
       'this': 'THIS',
       'that': 'THAT',
       'pointer': '3',
       'temp': '5'
-    };
+  };
   
-
   _incrementSP() {
     return `@SP\nM=M+1`;
   }
@@ -95,8 +94,9 @@ class CodeWriter {
     return assembly;
   }
 
-
-  setFileName(fileName) {}
+  setFileName(fileName) {
+    this.fileName = fileName;
+  }
 
   writeArithmetic(command) { // command type -> assembly equivalent
     this.outputFile.write(`// ${command}\n`);
@@ -162,7 +162,12 @@ class CodeWriter {
             const target = baseAddress + parseInt(index);
             assembly = `@${target}\nD=M\n${pushStack}${incPointer}\n`;
             break;
-          
+
+          case 'static':
+            const symbol = `@${this.fileName}.${index}\n`;
+            assembly = `${symbol}D=M\n${pushStack}${incPointer}\n`;
+            break;
+
           default:
             break;
         }
@@ -183,5 +188,6 @@ class CodeWriter {
     this.outputFile.end();
   }
 }
+
 
 module.exports = CodeWriter;
