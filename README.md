@@ -30,9 +30,10 @@ Soon...
 
 ### How to Use
 1. Ensure you have [Node.js](https://nodejs.org/) installed.
-2. Run the translator by passing your script and the input file path:
+2. Run the translator by passing a `.vm` file path or a directory path containing `.vm` files:
 ```bash
 npm start path/to/your/file.vm
+npm start path/to/your/directory
 ```
 ## 🇧🇷 Português
 ### Descrição
@@ -50,6 +51,7 @@ Em breve...
 
 ### Como Usar
 1. Certifique-se de ter o [Node.js](https://nodejs.org/) instalado.
-2. Execute o assembler informando o caminho do arquivo de entrada:
+2. Execute o assembler informando o caminho de um arquivo `.vm` ou de um diretório com arquivos `.vm`:
 ```bash
 npm start caminho/para/seu/arquivo.vm
+npm start caminho/para/seu/diretorio
